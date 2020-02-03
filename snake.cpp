@@ -213,7 +213,6 @@ public:
 		while(!over) {
 			draw();
 			input();
-			// break;
 			logic();
 		}
 	}
