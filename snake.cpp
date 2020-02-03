@@ -69,6 +69,24 @@ public:
 				break;
 		}
 
+
+		checkBoundaries();
+
+	}
+
+	void checkBoundaries() {
+		if(headX <= 0) {
+			headX = width - 1;
+		}
+		if(headX >= width) {
+			headX = 1;
+		}
+		if(headY <= 0) {
+			headY = height - 1;
+		}
+		if(headY >= height) {
+			headY = 1;
+		}
 	}
 
 
@@ -93,8 +111,8 @@ public:
 	}
 
 	void spawn() {
-		posX = rand()%(width - 1) + 1;
-		posY = rand()%(height - 1) + 1;
+		posX = rand()%(width - 2) + 1;
+		posY = rand()%(height - 2) + 1;
 	}
 
 	inline int getX() { return posX; }
@@ -111,26 +129,26 @@ class cGame {
 private:
 	cSnake snake;
 	cFruit fruit;
+	int *tailX;
+	int *tailY;
 	int score;
 
 public:
 
 	cGame() {
+		tailX = snake.getTailX();
+		tailY = snake.getTailY();
 		score = 0;
 	}
 
 	void input() {
 		initscr();
 
-	    cbreak();
-	    noecho();
-	    nodelay(stdscr, TRUE);
-
-	    scrollok(stdscr, TRUE);
-
 	    
 	    if(kbhit()) {
-	    	switch(getch()) {
+	    	char ch = getch();
+	    	endwin();
+	    	switch(ch) {
 	    		case 'w':
 	    			snake.changeDirection(UP);
 	    			break;
@@ -151,20 +169,34 @@ public:
 	    	}
 	    	
 	    }
-	    else {
-	    	refresh();
-	    	sleep(1);
-	    }
+	    refresh();
+	    endwin();
+	    system("stty sane");
+
 	    
 	}
 
 	void logic() {
-
+		if(snake.getX() == fruit.getX() && snake.getY() == fruit.getY()) {
+			fruit.spawn();
+			snake.increaseLength();
+			score += 5;
+		}
 		snake.move();
+
+		for(int i = 0; i < snake.getLength(); i++) {
+			if(snake.getX() == *(tailX + i) && snake.getY() == *(tailY + i)) {
+				over = true;
+			}
+		}
 
 	}
 
 	int kbhit(void) {
+
+		nodelay(stdscr, TRUE);
+		noecho();
+
 	    int ch = getch();
 
 	    if (ch != ERR) {
@@ -173,6 +205,7 @@ public:
 	    } else {
 	        return 0;
 	    }
+
 	}
 
 	void run() {
@@ -181,14 +214,12 @@ public:
 			draw();
 			input();
 			// break;
-			// logic();
+			logic();
 		}
 	}
 
 	void draw() {
 		system("clear");
-		int *tailX = snake.getTailX();
-		int *tailY = snake.getTailY();
 		for(int i = 0; i < width; i++) {
 			cout << "#";
 		}
@@ -229,6 +260,8 @@ public:
 			cout << "#";
 		}
 		cout << endl << "Score: " << score << endl;
+
+		usleep(50000);
 	}
 
 };
@@ -236,13 +269,6 @@ public:
 
 int main() {
 	srand(time(NULL));
-	// // system("clear");
-	// cFruit cF;
-	// cout << cF;
-	// cF.spawn();
-	// cout << cF;
-	// cF.spawn();
-	// cout << cF;
 	cGame game;
 	game.run();
 	return 0;
