@@ -4,6 +4,11 @@ Implementing Snake in C++ using following methods:
 *	A Command Line based implementaion (Inspired from NVitatonix Youtube tutorial)
 *	A SDL based implementation(yet to start)
 
+## Running Instructions
+
+`g++ -lncurses snake.cpp -o snake`
+
+`./snake`
 
 
 
